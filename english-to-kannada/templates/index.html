@@ -330,8 +330,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-language"></i> English to Kannada Translator</h1>
-            <p>Translate English text to Kannada instantly</p>
+            <h1><i class="fas fa-language"></i> English to Multilanguage Translator</h1>
+            <p>Choose the target language and translate English text instantly</p>
         </div>
 
         <div class="translator-section">
@@ -344,28 +344,46 @@
                     rows="4"></textarea>
             </div>
 
-            <button id="translate-btn" class="translate-btn">
-                <i class="fas fa-exchange-alt"></i>
-                Translate to Kannada
-            </button>
-
-            <div id="loading" class="loading">
-                <i class="fas fa-spinner"></i> Translating...
-            </div>
-
-            <div id="success-icon" class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-
-            <div id="error" class="error"></div>
+        <div class="input-group">
+            <label for="target-language"><i class="fas fa-globe"></i> Target Language</label>
+            <select id="target-language" class="input-field">
+                <option value="kn">Kannada</option>
+                <option value="hi">Hindi</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="ml">Malayalam</option>
+                <option value="bn">Bengali</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="zh">Chinese</option>
+                <option value="ar">Arabic</option>
+            </select>
         </div>
+
+        <button id="translate-btn" type="button" class="translate-btn">
+            <i class="fas fa-exchange-alt"></i>
+            Translate
+        </button>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i> Translating...
+        </div>
+
+        <div id="success-icon" class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+
+        <div id="error" class="error"></div>
 
         <div id="result-section" class="result-section">
             <div class="result-card">
                 <div class="result-label">English</div>
                 <div id="original-text" class="result-text english-text"></div>
 
-                <div class="result-label" style="margin-top: 20px;">ಕನ್ನಡ (Kannada)</div>
+                <div class="result-label" style="margin-top: 20px;" id="target-label">Translated Text</div>
                 <div id="translated-text" class="result-text kannada-text"></div>
 
                 <button id="copy-btn" class="copy-btn">
@@ -389,12 +407,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const translateBtn = document.getElementById('translate-btn');
             const englishText = document.getElementById('english-text');
+            const targetLanguage = document.getElementById('target-language');
             const loading = document.getElementById('loading');
             const successIcon = document.getElementById('success-icon');
             const errorDiv = document.getElementById('error');
             const resultSection = document.getElementById('result-section');
             const originalText = document.getElementById('original-text');
             const translatedText = document.getElementById('translated-text');
+            const targetLabel = document.getElementById('target-label');
             const copyBtn = document.getElementById('copy-btn');
             const historyList = document.getElementById('history-list');
             const clearHistoryBtn = document.getElementById('clear-history');
@@ -408,7 +428,7 @@
                     const historyItem = document.createElement('div');
                     historyItem.className = 'history-item';
                     historyItem.innerHTML = `
-                        <div class="timestamp">${item.timestamp}</div>
+                        <div class="timestamp">${item.timestamp} • ${item.targetName}</div>
                         <div class="text">${item.english}</div>
                         <div class="translation">${item.kannada}</div>
                     `;
@@ -416,9 +436,9 @@
                 });
             }
 
-            function addToHistory(english, kannada) {
+            function addToHistory(english, kannada, targetName) {
                 const timestamp = new Date().toLocaleString();
-                history.unshift({ english, kannada, timestamp });
+                history.unshift({ english, kannada, targetName, timestamp });
                 if (history.length > 10) {
                     history = history.slice(0, 10);
                 }
@@ -444,26 +464,37 @@
                 resultSection.style.display = 'none';
 
                 try {
-                    const response = await fetch('/translate', {
+                    console.log('Sending translation request:', { text: text, target: targetLanguage.value });
+                    const response = await fetch(window.location.origin + '/translate', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ text: text })
+                        body: JSON.stringify({
+                            text: text,
+                            target: targetLanguage.value
+                        })
                     });
 
+                    console.log('Response status:', response.status);
                     const data = await response.json();
-
+                    console.log('Response data:', data);
                     loading.style.display = 'none';
+
+                    if (!response.ok) {
+                        showError(data.error || 'Translation failed. Please try again.');
+                        return;
+                    }
 
                     if (data.success) {
                         originalText.textContent = data.original;
                         translatedText.textContent = data.translated;
+                        targetLabel.textContent = `${data.target_name} Translation`;
                         resultSection.style.display = 'block';
                         successIcon.style.display = 'block';
 
                         // Add to history
-                        addToHistory(data.original, data.translated);
+                        addToHistory(data.original, data.translated, data.target_name);
                     } else {
                         showError(data.error);
                     }
@@ -471,6 +502,7 @@
                 } catch (error) {
                     loading.style.display = 'none';
                     showError('Network error. Please try again.');
+                    console.error('Translation fetch error:', error);
                 }
 
                 translateBtn.disabled = false;
