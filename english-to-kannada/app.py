@@ -4,26 +4,6 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
-    from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-if __name__ == "__main__":
-    app.run()
 
 LANGUAGES = {
     'kn': 'Kannada',
@@ -49,31 +29,29 @@ def home():
 def translate():
     try:
         data = request.get_json()
-        print(f"Received translation request: {data}")
+
         text = data.get('text', '').strip()
         target = data.get('target', 'kn').strip().lower()
 
         if not text:
-            return jsonify({'error': 'Please enter some text to translate'}), 400
+            return jsonify({'error': 'Please enter some text'}), 400
 
         if target not in LANGUAGES:
-            return jsonify({'error': 'Invalid target language selected'}), 400
+            return jsonify({'error': 'Invalid language'}), 400
 
         translator = GoogleTranslator(source='en', target=target)
         translated = translator.translate(text)
-        result = {
+
+        return jsonify({
             'success': True,
             'original': text,
             'translated': translated,
             'target': target,
             'target_name': LANGUAGES[target]
-        }
-        print(f"Translation result: {result}")
-        return jsonify(result)
+        })
 
     except Exception as e:
-        print(f"Translation error: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True)
