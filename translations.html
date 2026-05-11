@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Kannada Translator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .translation-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .translation-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .translation-item .timestamp {
+            font-size: 0.85em;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .translation-item .label {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .translation-item .english {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+        
+        .translation-item .kannada {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            color: #764ba2;
+            font-size: 1.1em;
+            font-weight: 500;
+            line-height: 1.6;
+            font-family: 'Arial Unicode MS', Arial, sans-serif;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .translation-item {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 English to Kannada Translator</h1>
+            <p>Translations displayed below</p>
+        </div>
+        
+        <div class="translations">
+            <div class="empty-state">No translations yet. Please run the program and add some translations.</div>
+        </div>
+        
+        <div class="footer">
+            <p>Last updated: 2026-05-11 10:36:31</p>
+        </div>
+    </div>
+</body>
+</html>
