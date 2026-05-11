@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "buildCommand": "pip install -r english-to-kannada/requirements.txt",
+  "outputDirectory": "english-to-kannada",
+  "env": {
+    "FLASK_APP": "app.py"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.py"
+    }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
+  }
+}
