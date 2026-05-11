@@ -225,7 +225,7 @@
             font-size: 2em;
         }
 
-        .copy-btn {
+        .voice-btn, .copy-btn, .speak-btn {
             background: #667eea;
             color: white;
             border: none;
@@ -235,10 +235,26 @@
             font-size: 0.9em;
             margin-top: 10px;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .copy-btn:hover {
+        .voice-btn:hover, .copy-btn:hover, .speak-btn:hover {
             background: #5a67d8;
+        }
+
+        .voice-status {
+            color: #444;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .history-section {
@@ -342,6 +358,10 @@
                     class="input-field"
                     placeholder="Enter English text here..."
                     rows="4"></textarea>
+                <button id="voice-input-btn" type="button" class="voice-btn">
+                    <i class="fas fa-microphone"></i> Speak English
+                </button>
+                <div id="voice-status" class="voice-status"></div>
             </div>
 
         <div class="input-group">
@@ -386,9 +406,14 @@
                 <div class="result-label" style="margin-top: 20px;" id="target-label">Translated Text</div>
                 <div id="translated-text" class="result-text kannada-text"></div>
 
-                <button id="copy-btn" class="copy-btn">
-                    <i class="fas fa-copy"></i> Copy Translation
-                </button>
+                <div class="button-group">
+                    <button id="copy-btn" class="copy-btn">
+                        <i class="fas fa-copy"></i> Copy Translation
+                    </button>
+                    <button id="speak-btn" class="speak-btn" type="button" style="display:none;">
+                        <i class="fas fa-volume-up"></i> Speak Translation
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -416,11 +441,96 @@
             const translatedText = document.getElementById('translated-text');
             const targetLabel = document.getElementById('target-label');
             const copyBtn = document.getElementById('copy-btn');
+            const speakBtn = document.getElementById('speak-btn');
+            const voiceInputBtn = document.getElementById('voice-input-btn');
+            const voiceStatus = document.getElementById('voice-status');
             const historyList = document.getElementById('history-list');
             const clearHistoryBtn = document.getElementById('clear-history');
 
             // Load history from localStorage
             let history = JSON.parse(localStorage.getItem('translationHistory')) || [];
+
+            const speechLangMap = {
+                kn: 'kn-KN',
+                hi: 'hi-IN',
+                ta: 'ta-IN',
+                te: 'te-IN',
+                ml: 'ml-IN',
+                bn: 'bn-IN',
+                mr: 'mr-IN',
+                gu: 'gu-IN',
+                es: 'es-ES',
+                fr: 'fr-FR',
+                de: 'de-DE',
+                zh: 'zh-CN',
+                ar: 'ar-SA'
+            };
+
+            function speakText(text, lang) {
+                if (!('speechSynthesis' in window)) {
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = speechLangMap[lang] || lang;
+                const voices = speechSynthesis.getVoices();
+                const preferred = voices.find(v => v.lang.toLowerCase().startsWith(utterance.lang.toLowerCase().split('-')[0]));
+                if (preferred) {
+                    utterance.voice = preferred;
+                }
+                utterance.rate = 0.95;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition = null;
+
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = function() {
+                    voiceStatus.textContent = 'Listening for English input...';
+                    voiceInputBtn.disabled = true;
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    englishText.value = transcript;
+                    voiceStatus.textContent = `Recognized: ${transcript}`;
+                    // Automatically trigger translation after voice input
+                    setTimeout(() => {
+                        translateBtn.click();
+                    }, 500);
+                };
+
+                recognition.onerror = function(event) {
+                    voiceStatus.textContent = `Voice error: ${event.error}`;
+                };
+
+                recognition.onend = function() {
+                    voiceInputBtn.disabled = false;
+                    if (!voiceStatus.textContent.startsWith('Recognized:')) {
+                        voiceStatus.textContent = 'Voice input ended.';
+                    }
+                };
+            } else {
+                voiceStatus.textContent = 'Voice input not supported in this browser.';
+                voiceInputBtn.disabled = true;
+            }
+
+            voiceInputBtn.addEventListener('click', function() {
+                if (!recognition) {
+                    voiceStatus.textContent = 'Voice recognition is not available.';
+                    return;
+                }
+                voiceStatus.textContent = 'Preparing voice input...';
+                recognition.start();
+            });
 
             function updateHistory() {
                 historyList.innerHTML = '';
@@ -492,9 +602,11 @@
                         targetLabel.textContent = `${data.target_name} Translation`;
                         resultSection.style.display = 'block';
                         successIcon.style.display = 'block';
+                        speakBtn.style.display = 'inline-flex';
 
                         // Add to history
                         addToHistory(data.original, data.translated, data.target_name);
+                        speakText(data.translated, targetLanguage.value);
                     } else {
                         showError(data.error);
                     }
@@ -523,6 +635,13 @@
                         copyBtn.innerHTML = originalText;
                     }, 2000);
                 });
+            });
+
+            speakBtn.addEventListener('click', function() {
+                const text = translatedText.textContent;
+                if (text) {
+                    speakText(text, targetLanguage.value);
+                }
             });
 
             clearHistoryBtn.addEventListener('click', function() {
