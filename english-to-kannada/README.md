@@ -178,6 +178,8 @@ This project includes a `render.yaml` for one-click deployment on [Render](https
 
 The app runs with **Gunicorn** as the production WSGI server.
 
+🌐 **Live URL: [https://language-translator-1waf.onrender.com](https://language-translator-1waf.onrender.com)**
+
 ### Deploy on Vercel
 
 A `vercel.json` configuration is also included for deployment on [Vercel](https://vercel.com).
