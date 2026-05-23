@@ -5,7 +5,11 @@ A **Flask-based web application** that translates English text into multiple Ind
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)
 ![Flask](https://img.shields.io/badge/Flask-Web%20App-lightgrey?logo=flask)
 ![deep-translator](https://img.shields.io/badge/deep--translator-Google%20Translate-green)
-![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?logo=render)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?logo=render)](https://language-translator-1waf.onrender.com)
+
+## 🔗 Live Demo
+
+👉 **[https://language-translator-1waf.onrender.com](https://language-translator-1waf.onrender.com)**
 
 ---
 
@@ -174,7 +178,7 @@ translator/
 3. Select this repository — Render auto-detects `render.yaml`
 4. Click **Create Web Service**
 
-Your live URL will be: `https://translator-xxxx.onrender.com`
+Your live URL: **[https://language-translator-1waf.onrender.com](https://language-translator-1waf.onrender.com)**
 
 ### Deploy on Vercel
 
